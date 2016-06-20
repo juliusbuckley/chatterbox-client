@@ -73,6 +73,18 @@ form input[type=text] {
     background-color: #ddd;
 }
 
+.message {
+    border: 1px solid #000;
+}
+
+.message li {
+    list-style: none;
+}
+
+.message li .user {
+    font-weight: bold;
+}
+
 .spinner {
     float: right;
     height: 46px;
