@@ -1,12 +1,14 @@
-var message1 = {
-  username: 'Superman',
-  text: 'Where is Lex Luthor?',
-  roomname: 'Metropolis'
+var app = {};
+
+app.server = 'https://api.parse.com/1/classes/messages';
+
+app.init = function() {
+
 };
 
-var getMessages = function() {
+app.fetch = function() {
   $.ajax({
-    url: 'https://api.parse.com/1/classes/messages', 
+    url: this.server, 
     type: 'GET',
     contentType: 'application/JSON',
     success: function(result) {
@@ -19,9 +21,9 @@ var getMessages = function() {
   });
 };
 
-var postMessage = function(message) {
+app.send = function(message) {
   $.ajax({
-    url: 'https://api.parse.com/1/classes/messages',
+    url: this.server,
     type: 'POST',
     data: JSON.stringify(message),
     contentType: 'application/json',
@@ -34,11 +36,81 @@ var postMessage = function(message) {
   });
 };
 
-var displayMessages = function(messageArray) {
+app.createMessage = function() {
+  var $user = $('#user').val();
+  var $text = $('#userMessage').val();
+  var $room = $('roomname').val();
+
+  var messageObject = {};
+  messageObject['username'] = $user;
+  messageObject['text'] = $text;
+  messageObject['roomname'] = $room;
+
+  this.addMessage(messageObject);
+};
+
+app.addMessage = function(messageObject) {
+  var message = `<div class="message">
+                  <ul>
+                    <li class="user">${messageObject.username}</li>
+                    <li class="text">${messageObject.text}</li>
+                    <li class="time">${messageObject.updatedAt}</li>
+                  </ul>
+                </div>`;
+
+  $(message).appendTo('#chats');
+};
+
+app.clearMessages = function() {
+  $('#chats').empty();
+};
+
+app.messages = [];
+
+////////////////////////////////////////////////////////////////////////////////
+
+// var getMessages = function() {
+//   $.ajax({
+//     url: 'https://api.parse.com/1/classes/messages', 
+//     type: 'GET',
+//     contentType: 'application/JSON',
+//     success: function(result) {
+//       var messages = result['results'];
+//       // displayMessages(messages);
+//     },
+//     error: function(data) {
+//       console.log('What the French, toast?! The messages didn\'t load!', data);
+//     }
+//   });
+// };
+
+// var postMessage = function(message) {
+//   $.ajax({
+//     url: 'https://api.parse.com/1/classes/messages',
+//     type: 'POST',
+//     data: JSON.stringify(message),
+//     contentType: 'application/json',
+//     success: function (data) {
+//       console.log('chatterbox: Message sent');
+//     },
+//     error: function (data) {
+//       console.error('chatterbox: Failed to send message', data);
+//     }
+//   });
+// };
+
+var displayMessages = function(messageArray, roomName) {
   var $chats = $('#chats');
 
-  // removes all messages before refresh
-  $chats.empty();
+  // // removes all messages before refresh
+  // $chats.empty();
+
+  // // filter messages
+  // if (!roomName) {
+  //   messageArray = _.filter(messages, function(message) {
+  //     return message.roomname === roomName;
+  //   });
+  // }
 
   // add messages to #chats
   _.each(messageArray, function(message) {
@@ -57,17 +129,26 @@ var displayMessages = function(messageArray) {
   });
 };
 
-var createMessage = function() {
-  var $user = $('#user').val();
-  var $text = $('#userMessage').val();
+// var createMessage = function() {
+//   var $user = $('#user').val();
+//   var $text = $('#userMessage').val();
+//   var $room = $('roomname').val();
 
-  var messageObject = {};
-  messageObject['username'] = $user;
-  messageObject['text'] = $text;
-  messageObject['roomname'] = 'Gotham';
+//   var messageObject = {};
+//   messageObject['username'] = $user;
+//   messageObject['text'] = $text;
+//   messageObject['roomname'] = $room;
 
-  postMessage(messageObject);
-};
+//   postMessage(messageObject);
+// };
+
+// var filterByRoom = function(messages, roomName) {
+//   var filteredMessages = _.filter(messages, function(message) {
+//     return message.roomname === roomName;
+//   });
+
+//   displayMessages(filteredMessages);
+// };
 
 var getRoomNames = function() {
   $.ajax({
@@ -76,7 +157,7 @@ var getRoomNames = function() {
     contentType: 'application/JSON',
     success: function(result) {
       var messages = result['results'];
-      currentRooms(messages);
+      createRoomDropdown(messages);
     },
     error: function(data) {
       console.log('What the French, toast?! The messages didn\'t load!', data);
@@ -84,7 +165,7 @@ var getRoomNames = function() {
   });
 };
 
-var currentRooms = function(messages) {
+var createRoomDropdown = function(messages) {
   var roomsWithDups = _.pluck(messages, 'roomname');
   var roomnameObject = {};
   var rooms = [];
@@ -96,16 +177,29 @@ var currentRooms = function(messages) {
     }
   });
 
-  return rooms; // need to put these into a dropdown list
+  // empty all rooms from dropdown
+  $('#roomMenu').empty();
+
+  // add rooms to dropdown menu
+  _.each(rooms, (room) => {
+    var $option = $(`<option class="room" value=${room}>${room}</option>`);
+    $option.appendTo('#roomMenu');
+  });
 };
 
-
-
+$(document).ready(function() {
+  $('#roomMenu').click(function() {
+    // getRoomNames();
+    // grab room
+    // call display messages with roomname as arg
+  });
+});
 
 getMessages();
+getRoomNames();
 
 setInterval(function() {
   getMessages();
-  // currentRooms();
+  getRoomNames();
 }, 5000);
 
