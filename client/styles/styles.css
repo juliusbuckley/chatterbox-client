@@ -81,8 +81,17 @@ form input[type=text] {
     list-style: none;
 }
 
-.message li .user {
+.text {
+    color: red;
+}
+
+.time {
+    font-size: 11px;
+}
+
+.user {
     font-weight: bold;
+    color: blue;
 }
 
 .spinner {
