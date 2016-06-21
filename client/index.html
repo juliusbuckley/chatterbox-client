@@ -17,19 +17,13 @@
     <div id="main">
       <h1>chatterbox</h1>
 
-      <select id="roomMenu" name="rooms"></select>
+      <select id="roomSelect" name="rooms"></select>
 
       <form method="POST">
-        <label for="user">User: </label>
-        <input id="user" type="text" name="username"><br>
-
-        <label for="userMessage">Message: </label>
-        <input id="userMessage" type="text" name="message">
-
-        <label for="roomname">Room Name: </label>
-        <input id="roomname" type="text" name="roomname">
-
-        <button type="button" onclick="createMessage();">Submit</button>
+        <input id="user" type="text" name="username" value="username"><br>
+        <input id="userMessage" type="text" name="message" value="message">
+        <input id="userRoom" type="text" name="roomname" value="room">
+        <button type="button" onclick="app.createMessage();">Submit</button>
       </form>
 
     </div>

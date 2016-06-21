@@ -2,8 +2,10 @@ var app = {};
 
 app.server = 'https://api.parse.com/1/classes/messages';
 
-app.init = function() {
+app.messagesArray;
 
+app.init = function() {
+  this.fetch();
 };
 
 app.fetch = function() {
@@ -13,7 +15,12 @@ app.fetch = function() {
     contentType: 'application/JSON',
     success: function(result) {
       var messages = result['results'];
-      displayMessages(messages);
+      app.messagesArray = messages;
+      app.updateRooms();
+
+      _.each(messages, message => {
+        app.addMessage(message);
+      });
     },
     error: function(data) {
       console.log('What the French, toast?! The messages didn\'t load!', data);
@@ -39,14 +46,13 @@ app.send = function(message) {
 app.createMessage = function() {
   var $user = $('#user').val();
   var $text = $('#userMessage').val();
-  var $room = $('roomname').val();
+  var $room = $('#userRoom').val();
 
   var messageObject = {};
   messageObject['username'] = $user;
   messageObject['text'] = $text;
   messageObject['roomname'] = $room;
-
-  this.addMessage(messageObject);
+  this.send(messageObject);
 };
 
 app.addMessage = function(messageObject) {
@@ -65,7 +71,37 @@ app.clearMessages = function() {
   $('#chats').empty();
 };
 
-app.messages = [];
+app.updateRooms = function() {
+  var roomsWithDups = _.pluck(this.messagesArray, 'roomname');
+  var roomnameObject = {};
+  var rooms = [];
+
+  // removes duplicate rooms
+  _.each(roomsWithDups, room => {
+    if (roomnameObject[room] === undefined && room !== '' && room !== undefined) {
+      roomnameObject[room] = true;
+      rooms.push(room);
+    }
+  });
+
+  // empty all rooms from dropdown
+  $('#roomSelect').empty();
+
+  // add rooms to dropdown menu
+  _.each(rooms, room => {
+    var $option = $(`<option class="room" value=${room}>${room}</option>`);
+    $option.appendTo('#roomSelect');
+  });
+};
+
+app.addRoom = function(roomName) {
+  var $option = $(`<option class="room" value=${roomName}>${roomName}</option>`);
+  $option.appendTo('#roomSelect');
+};
+
+setInterval(function() {
+  app.init();
+}, 5000);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -99,35 +135,35 @@ app.messages = [];
 //   });
 // };
 
-var displayMessages = function(messageArray, roomName) {
-  var $chats = $('#chats');
+// var displayMessages = function(messageArray, roomName) {
+//   var $chats = $('#chats');
 
-  // // removes all messages before refresh
-  // $chats.empty();
+//   // // removes all messages before refresh
+//   // $chats.empty();
 
-  // // filter messages
-  // if (!roomName) {
-  //   messageArray = _.filter(messages, function(message) {
-  //     return message.roomname === roomName;
-  //   });
-  // }
+//   // // filter messages
+//   // if (!roomName) {
+//   //   messageArray = _.filter(messages, function(message) {
+//   //     return message.roomname === roomName;
+//   //   });
+//   // }
 
-  // add messages to #chats
-  _.each(messageArray, function(message) {
-    var text = 'Message: ' + message.text;
-    var user = 'User: ' + message.username;
-    var time = 'Time: ' + message.updatedAt;
+//   // add messages to #chats
+//   _.each(messageArray, function(message) {
+//     var text = 'Message: ' + message.text;
+//     var user = 'User: ' + message.username;
+//     var time = 'Time: ' + message.updatedAt;
 
-    var $messageText = $('<div class="message"></div>');
-    var $ul = $('<ul></ul>');
-    var $lineUser = $('<li class="user"></li>').text(user).appendTo($ul);
-    var $lineText = $('<li class="text"></li>').text(text).appendTo($ul);
-    var $lineTime = $('<li class="time"></li>').text(time).appendTo($ul);
+//     var $messageText = $('<div class="message"></div>');
+//     var $ul = $('<ul></ul>');
+//     var $lineUser = $('<li class="user"></li>').text(user).appendTo($ul);
+//     var $lineText = $('<li class="text"></li>').text(text).appendTo($ul);
+//     var $lineTime = $('<li class="time"></li>').text(time).appendTo($ul);
 
-    $ul.appendTo($messageText);
-    $messageText.prependTo($chats);
-  });
-};
+//     $ul.appendTo($messageText);
+//     $messageText.prependTo($chats);
+//   });
+// };
 
 // var createMessage = function() {
 //   var $user = $('#user').val();
@@ -150,56 +186,51 @@ var displayMessages = function(messageArray, roomName) {
 //   displayMessages(filteredMessages);
 // };
 
-var getRoomNames = function() {
-  $.ajax({
-    url: 'https://api.parse.com/1/classes/messages', 
-    type: 'GET',
-    contentType: 'application/JSON',
-    success: function(result) {
-      var messages = result['results'];
-      createRoomDropdown(messages);
-    },
-    error: function(data) {
-      console.log('What the French, toast?! The messages didn\'t load!', data);
-    }
-  });
-};
+// var getRoomNames = function() {
+//   $.ajax({
+//     url: 'https://api.parse.com/1/classes/messages', 
+//     type: 'GET',
+//     contentType: 'application/JSON',
+//     success: function(result) {
+//       var messages = result['results'];
+//       createRoomDropdown(messages);
+//     },
+//     error: function(data) {
+//       console.log('What the French, toast?! The messages didn\'t load!', data);
+//     }
+//   });
+// };
 
-var createRoomDropdown = function(messages) {
-  var roomsWithDups = _.pluck(messages, 'roomname');
-  var roomnameObject = {};
-  var rooms = [];
+// var createRoomDropdown = function(messages) {
+//   var roomsWithDups = _.pluck(messages, 'roomname');
+//   var roomnameObject = {};
+//   var rooms = [];
 
-  _.each(roomsWithDups, function(room) {
-    if (roomnameObject[room] === undefined && room !== '' && room !== undefined) {
-      roomnameObject[room] = true;
-      rooms.push(room);
-    }
-  });
+//   _.each(roomsWithDups, function(room) {
+//     if (roomnameObject[room] === undefined && room !== '' && room !== undefined) {
+//       roomnameObject[room] = true;
+//       rooms.push(room);
+//     }
+//   });
 
-  // empty all rooms from dropdown
-  $('#roomMenu').empty();
+//   // empty all rooms from dropdown
+//   $('#roomSelect').empty();
 
-  // add rooms to dropdown menu
-  _.each(rooms, (room) => {
-    var $option = $(`<option class="room" value=${room}>${room}</option>`);
-    $option.appendTo('#roomMenu');
-  });
-};
+//   // add rooms to dropdown menu
+//   _.each(rooms, (room) => {
+//     var $option = $(`<option class="room" value=${room}>${room}</option>`);
+//     $option.appendTo('#roomSelect');
+//   });
+// };
 
-$(document).ready(function() {
-  $('#roomMenu').click(function() {
-    // getRoomNames();
+// $(document).ready(function() {
+//   $('#roomSelect').click(function() {
+//     // getRoomNames();
     // grab room
-    // call display messages with roomname as arg
-  });
-});
+//     // call display messages with roomname as arg
+//   });
+// });
 
-getMessages();
-getRoomNames();
-
-setInterval(function() {
-  getMessages();
-  getRoomNames();
-}, 5000);
+// getMessages();
+// getRoomNames();
 
