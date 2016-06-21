@@ -1,48 +1,51 @@
 var app = {};
-
 app.server = 'https://api.parse.com/1/classes/messages';
-
 app.messagesArray;
 
 app.init = function() {
   this.fetch();
 };
 
+// get messages
 app.fetch = function() {
   $.ajax({
     url: this.server, 
     type: 'GET',
     contentType: 'application/JSON',
-    success: function(result) {
+    success: result => {
       var messages = result['results'];
       app.messagesArray = messages;
       app.updateRooms();
+      app.clearMessages();
 
+      // add all messages found in server
       _.each(messages, message => {
         app.addMessage(message);
       });
     },
-    error: function(data) {
+    error: data => {
       console.log('What the French, toast?! The messages didn\'t load!', data);
     }
   });
 };
 
+// post messages
 app.send = function(message) {
   $.ajax({
     url: this.server,
     type: 'POST',
     data: JSON.stringify(message),
     contentType: 'application/json',
-    success: function (data) {
+    success: data => {
       console.log('chatterbox: Message sent');
     },
-    error: function (data) {
+    error: data => {
       console.error('chatterbox: Failed to send message', data);
     }
   });
 };
 
+// create message from input form
 app.createMessage = function() {
   var $user = $('#user').val();
   var $text = $('#userMessage').val();
@@ -55,7 +58,8 @@ app.createMessage = function() {
   this.send(messageObject);
 };
 
-app.addMessage = function(messageObject) {
+// append message to #chats
+app.addMessage = messageObject => {
   var message = `<div class="message">
                   <ul>
                     <li class="user">${messageObject.username}</li>
@@ -67,10 +71,12 @@ app.addMessage = function(messageObject) {
   $(message).appendTo('#chats');
 };
 
+// clear all messages from #chats
 app.clearMessages = function() {
   $('#chats').empty();
 };
 
+// refresh rooms dropdown menu
 app.updateRooms = function() {
   var roomsWithDups = _.pluck(this.messagesArray, 'roomname');
   var roomnameObject = {};
@@ -89,19 +95,33 @@ app.updateRooms = function() {
 
   // add rooms to dropdown menu
   _.each(rooms, room => {
-    var $option = $(`<option class="room" value=${room}>${room}</option>`);
-    $option.appendTo('#roomSelect');
+    this.addRoom(room);
   });
 };
 
-app.addRoom = function(roomName) {
+// add room to the dropdown menu
+app.addRoom = roomName => {
   var $option = $(`<option class="room" value=${roomName}>${roomName}</option>`);
   $option.appendTo('#roomSelect');
 };
 
+app.init();
+
 setInterval(function() {
   app.init();
 }, 5000);
+
+
+
+
+
+
+
+
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
