@@ -69,25 +69,35 @@ var createMessage = function() {
   postMessage(messageObject);
 };
 
-// var getRoomNames = function() {
-//   $.ajax({
-//     url: 'https://api.parse.com/1/classes/messages', 
-//     type: 'GET',
-//     contentType: 'application/JSON',
-//     success: function(result) {
-//       var messages = result['results'];
-//       var roomnameObject = {};
+var getRoomNames = function() {
+  $.ajax({
+    url: 'https://api.parse.com/1/classes/messages', 
+    type: 'GET',
+    contentType: 'application/JSON',
+    success: function(result) {
+      var messages = result['results'];
+      currentRooms(messages);
+    },
+    error: function(data) {
+      console.log('What the French, toast?! The messages didn\'t load!', data);
+    }
+  });
+};
 
+var currentRooms = function(messages) {
+  var roomsWithDups = _.pluck(messages, 'roomname');
+  var roomnameObject = {};
+  var rooms = [];
 
+  _.each(roomsWithDups, function(room) {
+    if (roomnameObject[room] === undefined && room !== '' && room !== undefined) {
+      roomnameObject[room] = true;
+      rooms.push(room);
+    }
+  });
 
-//     },
-//     error: function(data) {
-//       console.log('What the French, toast?! The messages didn\'t load!', data);
-//     }
-//   });
-// };
-
-
+  return rooms; // need to put these into a dropdown list
+};
 
 
 
@@ -96,6 +106,6 @@ getMessages();
 
 setInterval(function() {
   getMessages();
-  console.log('refreshed!');  
+  // currentRooms();
 }, 5000);
 
