@@ -1,7 +1,7 @@
 var app = {};
 app.server = 'https://api.parse.com/1/classes/messages';
 app.messagesArray;
-
+app.flag = true;
 app.init = function() {
   this.fetch();
 };
@@ -15,8 +15,11 @@ app.fetch = function() {
     success: result => {
       var messages = result['results'];
       app.messagesArray = messages;
-      app.updateRooms();
       app.clearMessages();
+      if (app.flag) {
+        app.updateRooms();
+        app.flag = false;
+      }
 
       // add all messages found in server
       _.each(messages, message => {
@@ -60,19 +63,18 @@ app.createMessage = function() {
 
 // append message to #chats
 app.addMessage = messageObject => {
-  var message = `<div class="message">
-                  <ul>
-                    <li class="user">${messageObject.username}</li>
-                    <li class="text">${messageObject.text}</li>
-                    <li class="time">${messageObject.updatedAt}</li>
-                  </ul>
-                </div>`;
+  var $message = $('<div class="message"></div>');
+  var $ul = $('<ul></ul>');
+  $('<li class="user"></li>').text(messageObject.username).appendTo($ul);
+  $('<li class="text"></li>').text(messageObject.text).appendTo($ul);
+  $('<li class="time"></li>').text(messageObject.updatedAt).appendTo($ul);
 
-  $(message).appendTo('#chats');
+  $ul.appendTo($message);
+  $message.appendTo('#chats');
 };
 
 // clear all messages from #chats
-app.clearMessages = function() {
+app.clearMessages = () => {
   $('#chats').empty();
 };
 
@@ -101,15 +103,40 @@ app.updateRooms = function() {
 
 // add room to the dropdown menu
 app.addRoom = roomName => {
-  var $option = $(`<option class="room" value=${roomName}>${roomName}</option>`);
+  var $option = $(`<option class="room" value=${JSON.stringify(roomName)}>${roomName}</option>`);
   $option.appendTo('#roomSelect');
 };
 
+app.filterByRoom = roomName => {
+  console.log('ROOOOOONAME IS', JSON.stringify(roomName));
+  var filteredMessages = _.filter(app.messagesArray, function(message) {
+    return message.roomname === roomName;
+  });
+  console.log('FILTER IS HERE',filteredMessages);
+  app.clearMessages();
+
+  // add filtered messages to #chats
+  _.each(filteredMessages, message => {
+    app.addMessage(message);
+  });
+};
+
+$(document).ready(function() {
+  $('#roomSelect').change(function() {
+    var $roomSelect = $('#roomSelect').val();
+    app.updateRooms();
+    $(`#roomSelect option[value=${$roomSelect}]`).attr('selected', 'selected');
+    console.log("JQUERY",$roomSelect);
+    app.filterByRoom($roomSelect);
+
+  });
+});
+
 app.init();
 
-setInterval(function() {
-  app.init();
-}, 5000);
+  // setInterval(function() {
+  //   app.init();
+  // }, 5000);
 
 
 
