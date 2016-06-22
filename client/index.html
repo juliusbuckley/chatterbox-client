@@ -3,12 +3,20 @@
   <head>
     <meta charset="utf-8">
     <title>chatterbox</title>
-    <link rel="stylesheet" href="styles/styles.css">
 
     <!-- dependencies -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/underscore/underscore-min.js"></script>
+    
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+
+    <link rel="stylesheet" href="styles/styles.css">
+
+    <script src="http://momentjs.com/downloads/moment.js"></script>
    
     <!-- your scripts -->
     <script src="env/config.js"></script>
@@ -16,19 +24,39 @@
   </head>
   <body>
     <div id="main">
-      <h1>chatterbox</h1>
-        <button type="button" onclick="app.init();">Refresh</button>
+      <h1 class="center-align">chatterbox</h1>
+
       <select id="roomSelect" name="rooms"></select>
 
-      <form id="postMessage" method="POST">
-        <input id="user" type="text" name="username" value="username"><br>
-        <input id="userMessage" type="text" name="message" value="message">
-        <input id="userRoom" type="text" name="roomname" value="room">
-        <!-- <button id="send" class="submit" type="submit" onclick="app.handleSubmit();">Submit</button> -->
-        <button id="send" class="submit" type="submit">Submit</button> 
-      </form>
+      <div class="row">
+        <form id="postMessage" class="col s12" method="POST">   
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="user" type="text" name="username" class="validate">
+              <label for="user">Username</label>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="userMessage" type="text" name="message" class="validate">
+              <label for="userMessage">Message</label>
+            </div>
+          </div>
 
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="userRoom" type="text" name="roomname" class="validate">
+              <label for="userRoom">Room</label>  
+            </div>
+          </div>
+
+          <button id="send" class="submit waves-effect waves-light btn light-blue lighten-2" type="submit">Submit</button> 
+          <button type="button" class="waves-effect waves-light btn light-blue lighten-2" onclick="app.init();">Refresh</button>
+        </form>
+      </div>
     </div>
+
     <div id="chats"></div>
   </body>
 </html>

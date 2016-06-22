@@ -33,34 +33,6 @@ app.fetch = function() {
   });
 };
 
-app.fetchRooms = function(roomname) {
-  $.ajax({
-    url: this.server, 
-    type: 'GET',
-    // data: 'where=' + JSON.stringify({roomname: roomname}),
-    data: `where={roomname: ${roomname}}`,
-    contentType: 'application/JSON',
-    success: result => {
-      console.log(result);
-      // var messages = result['results'];
-      // app.messagesArray = messages;
-      // app.clearMessages();
-      // if (app.flag) {
-      //   app.updateRooms();
-      //   app.flag = false;
-      // }
-
-      // // add all messages found in server
-      // _.each(messages, message => {
-      //   app.addMessage(message);
-      // });
-    },
-    error: data => {
-      console.log('What the French, toast?! The messages didn\'t load!', data);
-    }
-  });
-};
-
 // post messages
 app.send = function(message) {
   $.ajax({
@@ -92,22 +64,17 @@ app.createMessage = function() {
 
 // append message to #chats
 app.addMessage = messageObject => {
-  var $message = $('<div class="message"></div>');
+  var $message = $('<div class="message card-panel z-depth-2 grey lighten-2"></div>');
   var $ul = $('<ul></ul>');
+  var createdAt = moment(messageObject.updatedAt).startOf('hour').fromNow();
+
   $(`<li class="user" data-username=${messageObject.username}></li>`).text(messageObject.username).appendTo($ul);
   $('<li class="text"></li>').text(messageObject.text).appendTo($ul);
-  $('<li class="time"></li>').text(messageObject.updatedAt).appendTo($ul);
+  $('<li class="time"></li>').text(createdAt).appendTo($ul);
 
   $ul.appendTo($message);
   $message.appendTo('#chats');
-};
-
-// // append message to #chats
-// app.addMessage = messageObject => {
-//   var $message = $('<div class="message"></div>');
-//   $message.text(messageObject.roomname + ' @' + messageObject.username + messageObject.text);
-//   $message.appendTo('#chats');
-// };
+};  
 
 // clear all messages from #chats
 app.clearMessages = () => {
