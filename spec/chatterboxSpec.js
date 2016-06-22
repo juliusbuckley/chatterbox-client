@@ -106,7 +106,7 @@ describe('chatterbox', function() {
 
         app.init();
 
-        $('#main').find('.username').trigger('click');
+        $('#main').find('.user').trigger('click');
         expect(app.addFriend.called).to.be.true;
 
         app.addFriend.restore();
@@ -119,7 +119,7 @@ describe('chatterbox', function() {
 
         app.init();
 
-        $('#send .submit').trigger('submit');
+        $('#send').trigger('submit');
         expect(app.handleSubmit.calledOnce).to.be.true;
 
         app.handleSubmit.restore();

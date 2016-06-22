@@ -20,11 +20,12 @@
         <button type="button" onclick="app.init();">Refresh</button>
       <select id="roomSelect" name="rooms"></select>
 
-      <form method="POST">
+      <form id="postMessage" method="POST">
         <input id="user" type="text" name="username" value="username"><br>
         <input id="userMessage" type="text" name="message" value="message">
         <input id="userRoom" type="text" name="roomname" value="room">
-        <button type="submit" onclick="app.createMessage(); app.fetch();">Submit</button>
+        <!-- <button id="send" class="submit" type="submit" onclick="app.handleSubmit();">Submit</button> -->
+        <button id="send" class="submit" type="submit">Submit</button> 
       </form>
 
     </div>
