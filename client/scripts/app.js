@@ -2,6 +2,7 @@ var app = {};
 app.server = 'https://api.parse.com/1/classes/messages';
 app.messagesArray;
 app.flag = true;
+app.friends = {};
 app.init = function() {
   this.fetch();
 };
@@ -25,6 +26,34 @@ app.fetch = function() {
       _.each(messages, message => {
         app.addMessage(message);
       });
+    },
+    error: data => {
+      console.log('What the French, toast?! The messages didn\'t load!', data);
+    }
+  });
+};
+
+app.fetchRooms = function(roomname) {
+  $.ajax({
+    url: this.server, 
+    type: 'GET',
+    // data: 'where=' + JSON.stringify({roomname: roomname}),
+    data: `where={roomname: ${roomname}}`,
+    contentType: 'application/JSON',
+    success: result => {
+      console.log(result);
+      // var messages = result['results'];
+      // app.messagesArray = messages;
+      // app.clearMessages();
+      // if (app.flag) {
+      //   app.updateRooms();
+      //   app.flag = false;
+      // }
+
+      // // add all messages found in server
+      // _.each(messages, message => {
+      //   app.addMessage(message);
+      // });
     },
     error: data => {
       console.log('What the French, toast?! The messages didn\'t load!', data);
@@ -65,7 +94,7 @@ app.createMessage = function() {
 app.addMessage = messageObject => {
   var $message = $('<div class="message"></div>');
   var $ul = $('<ul></ul>');
-  $('<li class="user"></li>').text(messageObject.username).appendTo($ul);
+  $(`<li class="user" data-username=${messageObject.username}></li>`).text(messageObject.username).appendTo($ul);
   $('<li class="text"></li>').text(messageObject.text).appendTo($ul);
   $('<li class="time"></li>').text(messageObject.updatedAt).appendTo($ul);
 
@@ -88,31 +117,35 @@ app.updateRooms = function() {
   _.each(roomsWithDups, room => {
     if (roomnameObject[room] === undefined && room !== '' && room !== undefined) {
       roomnameObject[room] = true;
+      room = room.replace(/ /g, '_');
       rooms.push(room);
     }
   });
 
   // empty all rooms from dropdown
   $('#roomSelect').empty();
-
   // add rooms to dropdown menu
   _.each(rooms, room => {
-    this.addRoom(room);
+    this.addRoom(room.replace(/ /g, '_'));
   });
 };
 
 // add room to the dropdown menu
 app.addRoom = roomName => {
-  var $option = $(`<option class="room" value=${JSON.stringify(roomName)}>${roomName}</option>`);
+  var $option = $(`<option class="room" value=${roomName}>${roomName}</option>`);
   $option.appendTo('#roomSelect');
 };
 
 app.filterByRoom = roomName => {
-  console.log('ROOOOOONAME IS', JSON.stringify(roomName));
   var filteredMessages = _.filter(app.messagesArray, function(message) {
+    if (message.roomname) {
+      // if message has space, replace with underscore
+      message.roomname = message.roomname.replace(/ /g, '_');
+    }
+
     return message.roomname === roomName;
   });
-  console.log('FILTER IS HERE',filteredMessages);
+
   app.clearMessages();
 
   // add filtered messages to #chats
@@ -121,22 +154,38 @@ app.filterByRoom = roomName => {
   });
 };
 
+// Event listeners
 $(document).ready(function() {
+  // Look for change in dropdown, keeps selected room selected
   $('#roomSelect').change(function() {
     var $roomSelect = $('#roomSelect').val();
     app.updateRooms();
     $(`#roomSelect option[value=${$roomSelect}]`).attr('selected', 'selected');
-    console.log("JQUERY",$roomSelect);
-    app.filterByRoom($roomSelect);
 
+    app.filterByRoom($roomSelect);
   });
+
+  // Clear input fields on focus
+  $('input').on('focus', function() {
+    $(this).val('');
+  });
+
+  // Add user to friends list
+  $('#chats').on('click', '.user', function(event) {
+    $(this).addClass('friend');
+    var $username = $(this).data('username');
+
+    if (!app.friends[$username]) {
+      app.friends[$username] = true;
+      console.log('Added friend!');
+    }
+
+  });  
+
+
 });
 
 app.init();
-
-  // setInterval(function() {
-  //   app.init();
-  // }, 5000);
 
 
 

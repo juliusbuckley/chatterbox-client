@@ -73,6 +73,10 @@ form input[type=text] {
     background-color: #ddd;
 }
 
+.friends {
+    color: #50C8FF;
+}
+
 .message {
     border: 1px solid #000;
 }
@@ -92,6 +96,7 @@ form input[type=text] {
 .user {
     font-weight: bold;
     color: blue;
+    cursor: pointer;
 }
 
 .spinner {
